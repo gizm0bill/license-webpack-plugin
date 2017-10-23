@@ -3,7 +3,11 @@
     /* Basic Options */
     "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
     "module": "commonjs",                     /* Specify module code generation: 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
-    "lib": ["es5", "es2015.core"],                   /* Specify library files to be included in the compilation:  */
+    "lib": [                                  /* Specify library files to be included in the compilation:  */
+      "es5", 
+      "es2015.core",
+      "es2015.promise"
+    ],
     "declaration": true,                      /* Generates corresponding '.d.ts' file. */
     "outDir": "./dist",                       /* Redirect output structure to the directory. */
     "rootDir": "./src",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
@@ -21,6 +25,9 @@
     "noImplicitReturns": true,                /* Report error when not all code paths in function return a value. */
     "noFallthroughCasesInSwitch": true,       /* Report errors for fallthrough cases in switch statement. */
 
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "types": [                                /* Type declaration files to be included in compilation. */
       "webpack"
     ]

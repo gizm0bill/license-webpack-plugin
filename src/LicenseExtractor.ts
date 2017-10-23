@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-
+import * as request from 'https';
 import { FileUtils } from './FileUtils';
 import { ConstructedOptions } from './ConstructedOptions';
 import { Module } from './Module';
@@ -22,7 +22,7 @@ class LicenseExtractor {
   }
 
   // returns true if the package is included as part of license report
-  parsePackage(packageName: string): boolean {
+  async parsePackage(packageName: string): Promise<boolean> {
     if (this.moduleCache[packageName]) {
       return true;
     }
@@ -61,7 +61,10 @@ class LicenseExtractor {
       }
     }
 
-    const licenseText = this.getLicenseText(packageJson, licenseName);
+    let licenseText = '';
+    await this.getLicenseText(packageJson, licenseName)
+      .then(s => (licenseText = s))
+      .catch(reason => console.warn(reason));
 
     const moduleCacheEntry = {
       packageJson,
@@ -71,8 +74,7 @@ class LicenseExtractor {
       }
     };
     this.moduleCache[packageName] = moduleCacheEntry;
-
-    return true;
+    return Promise.resolve(true);
   }
 
   getCachedPackage(packageName: string): Module {
@@ -163,7 +165,10 @@ class LicenseExtractor {
     return filename;
   }
 
-  private getLicenseText(packageJson: any, licenseName: string): string {
+  private async getLicenseText(
+    packageJson: any,
+    licenseName: string
+  ): Promise<string> {
     if (licenseName === LicenseExtractor.UNKNOWN_LICENSE) {
       return '';
     }
@@ -177,13 +182,51 @@ class LicenseExtractor {
           licenseName
         )
       );
-      return licenseName;
+
+      let licenseUrl = '';
+      let licenseFilenames: (string | boolean)[] = [false];
+      let requestChain: Promise<any> = Promise.resolve();
+
+      if (packageJson.repository && packageJson.repository.url) {
+        licenseUrl =
+          packageJson.repository.url
+            .replace(/^git\+/, '')
+            .replace(/github\.com/, 'raw.githubusercontent.com')
+            .replace(/\.git$/, '') + '/master/';
+        licenseFilenames = (<(string | boolean)[]>this.options
+          .licenseFilenames).concat([false]);
+      }
+
+      const getLicenseFromRepo = (fn: string | boolean) => {
+        return new Promise((resolve, reject) => {
+          if (!fn) reject('');
+          request.get(licenseUrl + fn, res => {
+            if (res.statusCode !== 200)
+              resolve(new Error(res.statusCode + ' ' + licenseUrl + fn));
+            else res.on('data', (d: Buffer) => reject(d.toString()));
+          });
+        });
+      };
+
+      licenseFilenames.forEach(fn => {
+        requestChain = requestChain.then(() =>
+          (fn => getLicenseFromRepo(fn))(fn)
+        );
+      });
+
+      return new Promise<string>(resolve => {
+        requestChain.catch(reason => {
+          resolve(reason as string);
+        });
+      });
     }
 
-    return fs
-      .readFileSync(licenseFilename, 'utf8')
-      .trim()
-      .replace(/\r\n/g, '\n');
+    return Promise.resolve(
+      fs
+        .readFileSync(licenseFilename, 'utf8')
+        .trim()
+        .replace(/\r\n/g, '\n')
+    );
   }
 
   private readPackageJson(packageName: string) {

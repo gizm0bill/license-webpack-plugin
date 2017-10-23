@@ -23,21 +23,24 @@ class ModuleProcessor {
     );
   }
 
-  processFile(filename: string): string | null {
+  async processFile(filename: string): Promise<string | null> {
     if (
       !filename ||
       filename.trim() === '' ||
       !this.isFromNodeModules(filename)
     ) {
-      return null;
+      return Promise.resolve(null);
     }
 
     const packageName: string = this.extractPackageName(filename);
-    return this.processPackage(packageName);
+    const processedPackage = await this.processPackage(packageName);
+    return processedPackage;
   }
 
-  processPackage(packageName: string): string | null {
-    const isParsed: boolean = this.licenseExtractor.parsePackage(packageName);
+  async processPackage(packageName: string): Promise<string | null> {
+    const isParsed: boolean = await this.licenseExtractor.parsePackage(
+      packageName
+    );
     return isParsed ? packageName : null;
   }
 

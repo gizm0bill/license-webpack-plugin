@@ -84,7 +84,12 @@ class LicenseWebpackPlugin {
 
     compiler.plugin('emit', (compilation: any, callback: Function) => {
       const totalChunkModuleMap: { [key: string]: boolean } = {};
+
+      const outerPromises: Promise<any>[] = [];
+
       compilation.chunks.forEach((chunk: any) => {
+        const promises: Promise<any>[] = [];
+
         if (this.options.excludedChunks.indexOf(chunk.name) > -1) {
           return;
         }
@@ -104,75 +109,103 @@ class LicenseWebpackPlugin {
         );
         const chunkModuleMap: { [key: string]: boolean } = {};
 
-        const moduleCallback = (chunkModule: any) => {
-          const packageName = this.moduleProcessor.processFile(
-            chunkModule.resource ||
-              (chunkModule.rootModule && chunkModule.rootModule.resource)
-          );
-          if (packageName) {
-            chunkModuleMap[packageName] = true;
-            totalChunkModuleMap[packageName] = true;
-          }
+        const moduleCallback = async (chunkModule: any) => {
+          await this.moduleProcessor
+            .processFile(
+              chunkModule.resource ||
+                (chunkModule.rootModule && chunkModule.rootModule.resource)
+            )
+            .then(pn => {
+              if (!pn) return;
+              chunkModuleMap[pn] = true;
+              totalChunkModuleMap[pn] = true;
+            })
+            .catch(reason =>
+              console.warn(
+                'processFile ' + chunkModule.resource + ' failed:',
+                reason
+              )
+            );
         };
 
         // scan all files used in compilation for this chunk
         if (typeof chunk.forEachModule === 'function') {
-          chunk.forEachModule(moduleCallback);
+          chunk.forEachModule((m: any) => promises.push(moduleCallback(m)));
         } else {
-          chunk.modules.forEach(moduleCallback); // chunk.modules was deprecated in webpack v3
+          chunk.modules.forEach((m: any) => promises.push(moduleCallback(m))); // chunk.modules was deprecated in webpack v3
         }
 
+        // TODO
         this.options.additionalPackages.forEach((packageName: string) => {
-          this.moduleProcessor.processPackage(packageName);
-          chunkModuleMap[packageName] = true;
-          totalChunkModuleMap[packageName] = true;
+          promises.push(
+            this.moduleProcessor
+              .processPackage(packageName)
+              .then(pn => {
+                if (!pn) return;
+                chunkModuleMap[pn] = true;
+                totalChunkModuleMap[pn] = true;
+              })
+              .catch(reason =>
+                console.warn(
+                  'processPackage ' + packageName + ' failed:',
+                  reason
+                )
+              )
+          );
         });
 
-        const renderedFile = this.renderLicenseFile(
-          Object.keys(chunkModuleMap)
-        );
+        outerPromises.push(
+          Promise.all(promises).then(() => {
+            const renderedFile = this.renderLicenseFile(
+              Object.keys(chunkModuleMap)
+            );
 
-        // Only write license file if there is something to write.
-        if (renderedFile.trim() !== '') {
-          if (this.options.addBanner) {
-            chunk.files
-              .filter((file: string) => /\.js$/.test(file))
-              .forEach((file: string) => {
-                compilation.assets[file] = new ConcatSource(
-                  ejs.render(this.options.bannerTemplate, {
-                    filename: outputPath
-                  }),
-                  '\n',
-                  compilation.assets[file]
-                );
-              });
-          }
-          if (this.options.perChunkOutput) {
-            compilation.assets[outputPath] = new RawSource(renderedFile);
-          }
-        }
+            // Only write license file if there is something to write.
+            if (renderedFile.trim() !== '') {
+              if (this.options.addBanner) {
+                chunk.files
+                  .filter((file: string) => /\.js$/.test(file))
+                  .forEach((file: string) => {
+                    compilation.assets[file] = new ConcatSource(
+                      ejs.render(this.options.bannerTemplate, {
+                        filename: outputPath
+                      }),
+                      '\n',
+                      compilation.assets[file]
+                    );
+                  });
+              }
+              if (this.options.perChunkOutput) {
+                compilation.assets[outputPath] = new RawSource(renderedFile);
+              }
+            }
+          })
+        );
       });
 
-      if (!this.options.perChunkOutput) {
-        // produce master licenses file
-        const outputPath = compilation.getPath(
-          this.options.outputFilename,
-          compilation
-        );
-        const renderedFile = this.renderLicenseFile(
-          Object.keys(totalChunkModuleMap)
-        );
+      Promise.all(outerPromises)
+        .then(() => {
+          if (!this.options.perChunkOutput) {
+            // produce master licenses file
+            const outputPath = compilation.getPath(
+              this.options.outputFilename,
+              compilation
+            );
+            const renderedFile = this.renderLicenseFile(
+              Object.keys(totalChunkModuleMap)
+            );
 
-        if (renderedFile.trim() !== '') {
-          compilation.assets[outputPath] = new RawSource(renderedFile);
-        }
-      }
+            if (renderedFile.trim() !== '') {
+              compilation.assets[outputPath] = new RawSource(renderedFile);
+            }
+          }
 
-      if (!this.options.suppressErrors) {
-        this.errors.forEach(error => console.error(error.message));
-      }
-
-      callback();
+          if (!this.options.suppressErrors) {
+            this.errors.forEach(error => console.error(error.message));
+          }
+          callback();
+        })
+        .catch(reason => console.warn(reason));
     });
   }
 
