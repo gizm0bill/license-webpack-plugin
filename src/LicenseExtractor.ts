@@ -24,7 +24,7 @@ class LicenseExtractor {
   // returns true if the package is included as part of license report
   async parsePackage(packageName: string): Promise<boolean> {
     if (this.moduleCache[packageName]) {
-      return true;
+      return Promise.resolve(true);
     }
 
     const packageJson = this.readPackageJson(packageName);
@@ -34,14 +34,14 @@ class LicenseExtractor {
       licenseName === LicenseExtractor.UNKNOWN_LICENSE &&
       !this.options.includePackagesWithoutLicense
     ) {
-      return false;
+      return Promise.reject(false);
     }
 
     if (
       licenseName !== LicenseExtractor.UNKNOWN_LICENSE &&
       !this.options.pattern.test(licenseName)
     ) {
-      return false;
+      return Promise.reject(false);
     }
 
     if (

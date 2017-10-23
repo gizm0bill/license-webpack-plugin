@@ -95,9 +95,11 @@ test('the plugin adds an additional asset to the compilation', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.ok(Object.keys(compiler.compilation.assets).length > 1);
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(Object.keys(compiler.compilation.assets).length > 1);
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows for custom output filename', function(t) {
@@ -107,12 +109,16 @@ test('the plugin allows for custom output filename', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  var chunk = compiler.compilation.chunks[0];
-  t.ok(
-    compiler.compilation.assets[chunk.name + '.' + chunk.hash + '.licenses.txt']
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    var chunk = compiler.compilation.chunks[0];
+    t.ok(
+      compiler.compilation.assets[
+        chunk.name + '.' + chunk.hash + '.licenses.txt'
+      ]
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin works if the webpack context is inside node_modules', function(
@@ -123,12 +129,14 @@ test('the plugin works if the webpack context is inside node_modules', function(
   });
   var compiler = setup(fixtures.nodeModulesContextProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin works if the webpack context is nested inside the project', function(
@@ -139,12 +147,14 @@ test('the plugin works if the webpack context is nested inside the project', fun
   });
   var compiler = setup(fixtures.nonRootContextProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin detects modules from node_modules', function(t) {
@@ -153,11 +163,13 @@ test('the plugin detects modules from node_modules', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['main.licenses.txt'].text.indexOf('lib1') > -1
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['main.licenses.txt'].text.indexOf('lib1') > -1
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin detects a LICENSE file from a module', function(t) {
@@ -166,12 +178,14 @@ test('the plugin detects a LICENSE file from a module', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin detects a license.txt file from a module', function(t) {
@@ -180,12 +194,14 @@ test('the plugin detects a license.txt file from a module', function(t) {
   });
   var compiler = setup(fixtures.oneLibProjectWithLicenseTxtFile());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows custom array of license filenames to match', function(
@@ -197,12 +213,14 @@ test('the plugin allows custom array of license filenames to match', function(
   });
   var compiler = setup(fixtures.oneLibProjectWithLicenseTxtFile());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin should have the option of including modules which do not have a license', function(
@@ -214,12 +232,14 @@ test('the plugin should have the option of including modules which do not have a
   });
   var compiler = setup(fixtures.unknownLicenseProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['main.licenses.txt'].text.indexOf('Unknown') >
-      -1
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['main.licenses.txt'].text.indexOf('Unknown') >
+        -1
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows a license template directory to be defined as backup in case the license file is not found', function(
@@ -231,12 +251,14 @@ test('the plugin allows a license template directory to be defined as backup in 
   });
   var compiler = setup(fixtures.missingLicenseFileProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin skips modules which do not match the pattern', function(t) {
@@ -245,11 +267,14 @@ test('the plugin skips modules which do not match the pattern', function(t) {
   });
   var compiler = setup(fixtures.multiModuleVaryingLicenseProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['main.licenses.txt'].text.indexOf('ISC') === -1
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['main.licenses.txt'].text.indexOf('ISC') ===
+        -1
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin can handle multiple modules', function(t) {
@@ -258,12 +283,15 @@ test('the plugin can handle multiple modules', function(t) {
   });
   var compiler = setup(fixtures.multiModuleVaryingLicenseProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['main.licenses.txt'].text.indexOf('ISC') > 0 &&
-      compiler.compilation.assets['main.licenses.txt'].text.indexOf('MIT') > 0
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['main.licenses.txt'].text.indexOf('ISC') >
+        0 &&
+        compiler.compilation.assets['main.licenses.txt'].text.indexOf('MIT') > 0
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin writes a 3rd party license notice to each js file when the banner option is enabled', function(
@@ -275,11 +303,14 @@ test('the plugin writes a 3rd party license notice to each js file when the bann
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['output.abcd.js'].text.indexOf('/*! 3rd') === 0
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['output.abcd.js'].text.indexOf('/*! 3rd') ===
+        0
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows for custom banner templates', function(t) {
@@ -290,13 +321,15 @@ test('the plugin allows for custom banner templates', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['output.abcd.js'].text.indexOf(
-      '/*! Test main.licenses.txt */'
-    ) === 0
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['output.abcd.js'].text.indexOf(
+        '/*! Test main.licenses.txt */'
+      ) === 0
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows overriding a license file for a module', function(t) {
@@ -308,11 +341,14 @@ test('the plugin allows overriding a license file for a module', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.ok(
-    compiler.compilation.assets['main.licenses.txt'].text.indexOf('custom') > 0
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(
+      compiler.compilation.assets['main.licenses.txt'].text.indexOf('custom') >
+        0
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin should handle scoped packages properly', function(t) {
@@ -321,12 +357,14 @@ test('the plugin should handle scoped packages properly', function(t) {
   });
   var compiler = setup(fixtures.oneLibScopedPackageProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    '@org/lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      '@org/lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin should handle scoped packages properly when there are two @ signs in the path to the library file', function(
@@ -337,12 +375,14 @@ test('the plugin should handle scoped packages properly when there are two @ sig
   });
   var compiler = setup(fixtures.oneLibScopedPackageProjectWithAtSignResource());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    '@org/lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      '@org/lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin allows an override of the license type', function(t) {
@@ -354,12 +394,14 @@ test('the plugin allows an override of the license type', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nISC\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nISC\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin picks the first license when license is not in package.json and licenses is an array in package.json', function(
@@ -370,12 +412,14 @@ test('the plugin picks the first license when license is not in package.json and
   });
   var compiler = setup(fixtures.licenseArrayProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin handles license.type in package.json', function(t) {
@@ -384,12 +428,14 @@ test('the plugin handles license.type in package.json', function(t) {
   });
   var compiler = setup(fixtures.licenseTypeProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin throws an error on an unacceptable license when abort option is set', function(
@@ -401,6 +447,7 @@ test('the plugin throws an error on an unacceptable license when abort option is
     abortOnUnacceptableLicense: true
   });
   var compiler = setup(fixtures.oneLibProject());
+  // TODO: fix
   t.throws(function() {
     plugin.apply(compiler);
   });
@@ -429,10 +476,12 @@ test('the plugin handles excluded chunks', function(t) {
   });
   var compiler = setup(fixtures.twoChunkProject());
   plugin.apply(compiler);
-  t.ok(compiler.compilation.assets['vendor.licenses.txt']);
-  t.notOk(compiler.compilation.assets['main.licenses.txt']);
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(compiler.compilation.assets['vendor.licenses.txt']);
+    t.notOk(compiler.compilation.assets['main.licenses.txt']);
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin handles included chunks', function(t) {
@@ -442,10 +491,12 @@ test('the plugin handles included chunks', function(t) {
   });
   var compiler = setup(fixtures.twoChunkProject());
   plugin.apply(compiler);
-  t.ok(compiler.compilation.assets['vendor.licenses.txt']);
-  t.notOk(compiler.compilation.assets['main.licenses.txt']);
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.ok(compiler.compilation.assets['vendor.licenses.txt']);
+    t.notOk(compiler.compilation.assets['main.licenses.txt']);
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin excluded chunks overrides included chunks', function(t) {
@@ -456,9 +507,11 @@ test('the plugin excluded chunks overrides included chunks', function(t) {
   });
   var compiler = setup(fixtures.twoChunkProject());
   plugin.apply(compiler);
-  t.notOk(compiler.compilation.assets['vendor.licenses.txt']);
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.notOk(compiler.compilation.assets['vendor.licenses.txt']);
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin leaves quotation marks as is', function(t) {
@@ -467,12 +520,14 @@ test('the plugin leaves quotation marks as is', function(t) {
   });
   var compiler = setup(fixtures.licenseWithQuotationMarkProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\n"MIT License"'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\n"MIT License"'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin does not write output for a chunk with no licenses', function(
@@ -497,9 +552,14 @@ test('the plugin does not write a banner to a chunk with no referenced licenses'
   });
   var compiler = setup(fixtures.no3rdPartyLicenseProject());
   plugin.apply(compiler);
-  t.equal(compiler.compilation.assets['output.abcd.js'].text, 'some test file');
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['output.abcd.js'].text,
+      'some test file'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin writes a master file when the option is set', function(t) {
@@ -509,13 +569,15 @@ test('the plugin writes a master file when the option is set', function(t) {
   });
   var compiler = setup(fixtures.oneLibProject());
   plugin.apply(compiler);
-  t.notOk(compiler.compilation.assets['main.licenses.txt']);
-  t.equal(
-    compiler.compilation.assets['licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.notOk(compiler.compilation.assets['main.licenses.txt']);
+    t.equal(
+      compiler.compilation.assets['licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin can force certain packages to be in the output', function(t) {
@@ -525,12 +587,14 @@ test('the plugin can force certain packages to be in the output', function(t) {
   });
   var compiler = setup(fixtures.no3rdPartyLicenseProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin ignores stray files inside node_modules such as node_modules/foo.js', function(
@@ -554,12 +618,14 @@ test('the plugin handles rootModule when module.resource is not found', function
   });
   var compiler = setup(fixtures.rootModuleProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT License'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT License'
+    );
+    teardown();
+    t.end();
+  });
 });
 
 test('the plugin normalizes line endings from license files to LF format', function(
@@ -570,10 +636,12 @@ test('the plugin normalizes line endings from license files to LF format', funct
   });
   var compiler = setup(fixtures.oneLibCRLFProject());
   plugin.apply(compiler);
-  t.equal(
-    compiler.compilation.assets['main.licenses.txt'].text,
-    'lib1@0.0.1\nMIT\nMIT\nLicense\ntest'
-  );
-  teardown();
-  t.end();
+  setTimeout(() => {
+    t.equal(
+      compiler.compilation.assets['main.licenses.txt'].text,
+      'lib1@0.0.1\nMIT\nMIT\nLicense\ntest'
+    );
+    teardown();
+    t.end();
+  });
 });

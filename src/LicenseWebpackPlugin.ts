@@ -23,7 +23,6 @@ class LicenseWebpackPlugin {
     if (!options || !options.pattern || !(options.pattern instanceof RegExp)) {
       throw new LicenseWebpackPluginError(ErrorMessage.NO_PATTERN);
     }
-
     if (
       options.unacceptablePattern !== undefined &&
       options.unacceptablePattern !== null &&
@@ -120,12 +119,14 @@ class LicenseWebpackPlugin {
               chunkModuleMap[pn] = true;
               totalChunkModuleMap[pn] = true;
             })
-            .catch(reason =>
-              console.warn(
+            .catch(reason => {
+              // TODO: fix
+              console.error(
                 'processFile ' + chunkModule.resource + ' failed:',
                 reason
-              )
-            );
+              );
+              // if (reason instanceof Error) throw reason;
+            });
         };
 
         // scan all files used in compilation for this chunk
