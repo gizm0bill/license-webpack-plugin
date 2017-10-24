@@ -124,12 +124,6 @@ var LicenseWebpackPlugin = /** @class */ (function () {
                                         return;
                                     chunkModuleMap[pn] = true;
                                     totalChunkModuleMap[pn] = true;
-                                })
-                                    .catch(function (reason) {
-                                    // TODO: fix
-                                    console.error('processFile ' + chunkModule.resource + ' failed:', reason);
-                                    if (reason instanceof Error)
-                                        throw Error;
                                 })];
                             case 1:
                                 _a.sent();
@@ -158,11 +152,19 @@ var LicenseWebpackPlugin = /** @class */ (function () {
                         return console.warn('processPackage ' + packageName + ' failed:', reason);
                     }));
                 });
-                outerPromises.push(Promise.all(promises)
-                    .then(function () {
-                    console.log('=========');
+                outerPromises.push(Promise.all(promises).then(function () {
                     var renderedFile = _this.renderLicenseFile(Object.keys(chunkModuleMap));
-                    // Only write license file if there is something to write.
+                    return [renderedFile, chunk, outputPath];
+                }));
+            });
+            Promise.all(outerPromises)
+                .then(function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                [].concat.apply([], args).forEach(function (_a) {
+                    var renderedFile = _a[0], chunk = _a[1], outputPath = _a[2];
                     if (renderedFile.trim() !== '') {
                         if (_this.options.addBanner) {
                             chunk.files
@@ -177,14 +179,7 @@ var LicenseWebpackPlugin = /** @class */ (function () {
                             compilation.assets[outputPath] = new webpack_sources_1.RawSource(renderedFile);
                         }
                     }
-                })
-                    .catch(function (reason) {
-                    if (reason instanceof Error)
-                        throw Error;
-                }));
-            });
-            Promise.all(outerPromises)
-                .then(function () {
+                });
                 if (!_this.options.perChunkOutput) {
                     // produce master licenses file
                     var outputPath = compilation.getPath(_this.options.outputFilename, compilation);
@@ -195,14 +190,16 @@ var LicenseWebpackPlugin = /** @class */ (function () {
                 }
                 if (!_this.options.suppressErrors) {
                     _this.errors.forEach(function (error) { return console.error(error.message); });
+                    compilation.warnings = compilation.warnings.concat(_this.errors);
                 }
+                // console.log('===OK===>', compilation.assets);
                 callback();
             })
                 .catch(function (reason) {
-                console.warn(reason);
-                if (reason instanceof Error) {
-                    compilation.errors.push(reason);
-                    callback();
+                // console.log('==ERORR=>', reason);
+                compilation.errors.push(reason.message);
+                if (reason instanceof LicenseWebpackPluginError_1.LicenseWebpackPluginAbortError) {
+                    callback(reason);
                 }
             });
         });

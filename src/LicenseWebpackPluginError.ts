@@ -10,4 +10,13 @@ class LicenseWebpackPluginError extends Error {
   }
 }
 
-export { LicenseWebpackPluginError };
+class LicenseWebpackPluginAbortError extends Error {
+  constructor(error: Error | ErrorMessage, ...params: string[]) {
+    if (error instanceof Error) super(error.message);
+    else super(new LicenseWebpackPluginError(error, ...params).message);
+    Object.setPrototypeOf(this, LicenseWebpackPluginAbortError.prototype);
+    return this;
+  }
+}
+
+export { LicenseWebpackPluginError, LicenseWebpackPluginAbortError };

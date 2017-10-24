@@ -34,6 +34,7 @@
     "@types/ejs": "^2.3.33",
     "@types/webpack": "^3.0.5",
     "@types/webpack-sources": "^0.1.2",
+    "blue-tape": "^1.0.0",
     "mock-fs": "^4.4.1",
     "object-assign": "^4.1.1",
     "path.join": "^1.0.0",

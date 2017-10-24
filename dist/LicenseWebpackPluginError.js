@@ -28,3 +28,21 @@ var LicenseWebpackPluginError = /** @class */ (function (_super) {
     return LicenseWebpackPluginError;
 }(Error));
 exports.LicenseWebpackPluginError = LicenseWebpackPluginError;
+var LicenseWebpackPluginAbortError = /** @class */ (function (_super) {
+    __extends(LicenseWebpackPluginAbortError, _super);
+    function LicenseWebpackPluginAbortError(error) {
+        var params = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
+        }
+        var _this = this;
+        if (error instanceof Error)
+            _this = _super.call(this, error.message) || this;
+        else
+            _this = _super.call(this, new (LicenseWebpackPluginError.bind.apply(LicenseWebpackPluginError, [void 0, error].concat(params)))().message) || this;
+        Object.setPrototypeOf(_this, LicenseWebpackPluginAbortError.prototype);
+        return _this;
+    }
+    return LicenseWebpackPluginAbortError;
+}(Error));
+exports.LicenseWebpackPluginAbortError = LicenseWebpackPluginAbortError;

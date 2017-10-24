@@ -4,7 +4,10 @@ import * as ejs from 'ejs';
 
 import { RawSource, ConcatSource } from 'webpack-sources';
 
-import { LicenseWebpackPluginError } from './LicenseWebpackPluginError';
+import {
+  LicenseWebpackPluginError,
+  LicenseWebpackPluginAbortError
+} from './LicenseWebpackPluginError';
 import { ErrorMessage } from './ErrorMessage';
 import { ConstructedOptions } from './ConstructedOptions';
 import { Options } from './Options';
@@ -118,14 +121,6 @@ class LicenseWebpackPlugin {
               if (!pn) return;
               chunkModuleMap[pn] = true;
               totalChunkModuleMap[pn] = true;
-            })
-            .catch(reason => {
-              // TODO: fix
-              console.error(
-                'processFile ' + chunkModule.resource + ' failed:',
-                reason
-              );
-              // if (reason instanceof Error) throw reason;
             });
         };
 
@@ -160,8 +155,14 @@ class LicenseWebpackPlugin {
             const renderedFile = this.renderLicenseFile(
               Object.keys(chunkModuleMap)
             );
+            return [renderedFile, chunk, outputPath];
+          })
+        );
+      });
 
-            // Only write license file if there is something to write.
+      Promise.all(outerPromises)
+        .then((...args: any[]) => {
+          [].concat(...args).forEach(([renderedFile, chunk, outputPath]) => {
             if (renderedFile.trim() !== '') {
               if (this.options.addBanner) {
                 chunk.files
@@ -180,12 +181,7 @@ class LicenseWebpackPlugin {
                 compilation.assets[outputPath] = new RawSource(renderedFile);
               }
             }
-          })
-        );
-      });
-
-      Promise.all(outerPromises)
-        .then(() => {
+          });
           if (!this.options.perChunkOutput) {
             // produce master licenses file
             const outputPath = compilation.getPath(
@@ -203,10 +199,18 @@ class LicenseWebpackPlugin {
 
           if (!this.options.suppressErrors) {
             this.errors.forEach(error => console.error(error.message));
+            compilation.warnings = compilation.warnings.concat(this.errors);
           }
+          // console.log('===OK===>', compilation.assets);
           callback();
         })
-        .catch(reason => console.warn(reason));
+        .catch(reason => {
+          // console.log('==ERORR=>', reason);
+          compilation.errors.push(reason.message);
+          if (reason instanceof LicenseWebpackPluginAbortError) {
+            callback(reason);
+          }
+        });
     });
   }
 

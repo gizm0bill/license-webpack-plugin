@@ -5,7 +5,10 @@ import { FileUtils } from './FileUtils';
 import { ConstructedOptions } from './ConstructedOptions';
 import { Module } from './Module';
 import { ModuleCache } from './ModuleCache';
-import { LicenseWebpackPluginError } from './LicenseWebpackPluginError';
+import {
+  LicenseWebpackPluginError,
+  LicenseWebpackPluginAbortError
+} from './LicenseWebpackPluginError';
 import { ErrorMessage } from './ErrorMessage';
 
 class LicenseExtractor {
@@ -34,14 +37,14 @@ class LicenseExtractor {
       licenseName === LicenseExtractor.UNKNOWN_LICENSE &&
       !this.options.includePackagesWithoutLicense
     ) {
-      return Promise.reject(false);
+      return Promise.resolve(false);
     }
 
     if (
       licenseName !== LicenseExtractor.UNKNOWN_LICENSE &&
       !this.options.pattern.test(licenseName)
     ) {
-      return Promise.reject(false);
+      return Promise.resolve(false);
     }
 
     if (
@@ -55,7 +58,7 @@ class LicenseExtractor {
         licenseName
       );
       if (this.options.abortOnUnacceptableLicense) {
-        throw error;
+        throw new LicenseWebpackPluginAbortError(error);
       } else {
         this.errors.push(error);
       }

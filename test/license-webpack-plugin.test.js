@@ -268,6 +268,7 @@ test('the plugin skips modules which do not match the pattern', function(t) {
   var compiler = setup(fixtures.multiModuleVaryingLicenseProject());
   plugin.apply(compiler);
   setTimeout(() => {
+    console.log(compiler.compilation.assets);
     t.ok(
       compiler.compilation.assets['main.licenses.txt'].text.indexOf('ISC') ===
         -1
@@ -448,11 +449,12 @@ test('the plugin throws an error on an unacceptable license when abort option is
   });
   var compiler = setup(fixtures.oneLibProject());
   // TODO: fix
-  t.throws(function() {
-    plugin.apply(compiler);
+  plugin.apply(compiler);
+  setTimeout(() => {
+    t.ok(compiler.compilation.errors.length > 0);
+    teardown();
+    t.end();
   });
-  teardown();
-  t.end();
 });
 
 test('the plugin adds an error on an unacceptable license when abort option is not set', function(

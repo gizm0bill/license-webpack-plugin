@@ -63,18 +63,18 @@ var LicenseExtractor = /** @class */ (function () {
                         licenseName = this.getLicenseName(packageJson);
                         if (licenseName === LicenseExtractor.UNKNOWN_LICENSE &&
                             !this.options.includePackagesWithoutLicense) {
-                            return [2 /*return*/, Promise.reject(false)];
+                            return [2 /*return*/, Promise.resolve(false)];
                         }
                         if (licenseName !== LicenseExtractor.UNKNOWN_LICENSE &&
                             !this.options.pattern.test(licenseName)) {
-                            return [2 /*return*/, Promise.reject(false)];
+                            return [2 /*return*/, Promise.resolve(false)];
                         }
                         if (licenseName !== LicenseExtractor.UNKNOWN_LICENSE &&
                             this.options.unacceptablePattern &&
                             this.options.unacceptablePattern.test(licenseName)) {
                             error = new LicenseWebpackPluginError_1.LicenseWebpackPluginError(ErrorMessage_1.ErrorMessage.UNNACEPTABLE_LICENSE, packageName, licenseName);
                             if (this.options.abortOnUnacceptableLicense) {
-                                throw error;
+                                throw new LicenseWebpackPluginError_1.LicenseWebpackPluginAbortError(error);
                             }
                             else {
                                 this.errors.push(error);

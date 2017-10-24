@@ -8,6 +8,8 @@ function FakeCompilation(assets, chunks) {
   });
   this.assets = assets;
   this.chunks = chunks;
+  this.errors = [];
+  this.warnings = [];
 }
 
 FakeCompilation.prototype.getPath = function(template, opts) {
